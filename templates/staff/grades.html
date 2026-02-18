@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Grades{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('staff_dashboard') }}" class="sidebar-link">📊 Dashboard</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Grades - {{ class_info.Code }}</h1>
+            <div>
+                <a href="{{ url_for('staff_exam_add', class_id=class_info.Class_ID) }}" class="btn btn-primary">➕ Add Exam</a>
+                <a href="{{ url_for('staff_class_detail', class_id=class_info.Class_ID) }}" class="btn btn-secondary">← Back</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Exams & Grades</div>
+            
+            {% if exams|length == 0 %}
+            <p style="padding: 2rem; text-align: center; color: #64748b;">
+                No exams created yet. Click "Add Exam" to create one.
+            </p>
+            {% else %}
+            <div class="table-container" style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            {% for exam in exams %}
+                            <th>{{ exam.Title }}<br><small>({{ exam.Total_Marks }} pts)</small></th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.First_Name }} {{ student.Last_Name }}</td>
+                            {% for exam in exams %}
+                            <td>
+                                {% set grade = grade_matrix.get(student.Student_ID, {}).get(exam.Exam_ID) %}
+                                <input type="number" 
+                                       class="form-control" 
+                                       style="width: 100px;"
+                                       step="0.01"
+                                       min="0"
+                                       max="{{ exam.Total_Marks }}"
+                                       value="{{ grade.Marks_Obtained if grade else '' }}"
+                                       onchange="updateGrade({{ exam.Exam_ID }}, {{ student.Student_ID }}, this.value)"
+                                       placeholder="0">
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function updateGrade(examId, studentId, marks) {
+    fetch(`/staff/grade/edit/${examId}/${studentId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `marks=${marks}&comments=`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Grade updated successfully');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update grade');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Add Enrollment{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">📊 Dashboard</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_students') }}" class="sidebar-link">👨‍🎓 Students</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_staff') }}" class="sidebar-link">👨‍🏫 Staff</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_courses') }}" class="sidebar-link">📚 Courses</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_classes') }}" class="sidebar-link">🏫 Classes</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_enrollments') }}" class="sidebar-link active">📝 Enrollments</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Add New Enrollment</h1>
+            <a href="{{ url_for('admin_enrollments') }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="student_id" class="form-label">Student *</label>
+                    <select id="student_id" name="student_id" class="form-control" required>
+                        <option value="">Select Student</option>
+                        {% for student in students %}
+                        <option value="{{ student.Student_ID }}">
+                            {{ student.First_Name }} {{ student.Last_Name }} ({{ student.Email }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="class_id" class="form-label">Class *</label>
+                    <select id="class_id" name="class_id" class="form-control" required>
+                        <option value="">Select Class</option>
+                        {% for cls in classes %}
+                        <option value="{{ cls.Class_ID }}">
+                            {{ cls.Code }} - {{ cls.Title }} (Section {{ cls.Section }}, {{ cls.Semester }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Add Enrollment</button>
+                    <a href="{{ url_for('admin_enrollments') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Login - School Management System{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 class="login-title">🎓 Login</h1>
+            <p class="login-subtitle">Enter your credentials to access the system</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;">Login</button>
+        </form>
+        
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; margin-top: 2rem;">
+            <h4 style="font-size: 0.9rem; margin-bottom: 0.75rem; color: #64748b;">Default Credentials:</h4>
+            <div style="font-size: 0.85rem; color: #475569;">
+                <p style="margin-bottom: 0.5rem;"><strong>Admin:</strong> username: <code>admin</code>, password: <code>admin123</code></p>
+                <p style="margin-bottom: 0.5rem;"><strong>Staff:</strong> username: <code>snape</code>, password: <code>staff123</code></p>
+                <p><strong>Student:</strong> username: <code>harry</code>, password: <code>student123</code></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

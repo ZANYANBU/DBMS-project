@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Schedule{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_dashboard') }}" class="sidebar-link">📊 Dashboard</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_grades') }}" class="sidebar-link">📝 My Grades</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_attendance') }}" class="sidebar-link">✅ My Attendance</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_schedule') }}" class="sidebar-link active">📅 My Schedule</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">My Class Schedule</h1>
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Weekly Schedule</div>
+            
+            {% if schedule|length == 0 %}
+            <p style="padding: 2rem; text-align: center; color: #64748b;">
+                No schedule available yet.
+            </p>
+            {% else %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Room</th>
+                            <th>Building</th>
+                            <th>Teacher</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in schedule %}
+                        {% if item.Day_of_Week %}
+                        <tr>
+                            <td><strong>{{ item.Day_of_Week }}</strong></td>
+                            <td>{{ item.Start_Time }} - {{ item.End_Time }}</td>
+                            <td><span class="badge badge-info">{{ item.Code }}</span> {{ item.Title }}</td>
+                            <td>{{ item.Section }}</td>
+                            <td>{{ item.Room_Number }}</td>
+                            <td>{{ item.Building }}</td>
+                            <td>{{ item.Teacher_Name or 'TBA' }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

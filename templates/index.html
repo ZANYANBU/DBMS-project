@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - School Management System{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 class="login-title">🎓 School Management System</h1>
+            <p class="login-subtitle">Enterprise Classroom Management</p>
+        </div>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Welcome to our comprehensive school management platform</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                Login to Continue
+            </a>
+        </div>
+        
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; margin-top: 2rem;">
+            <h3 style="font-size: 1rem; margin-bottom: 1rem; color: #64748b;">Features:</h3>
+            <ul style="list-style: none; padding: 0;">
+                <li style="margin-bottom: 0.5rem;">✓ Multi-level User Access (Admin, Staff, Student)</li>
+                <li style="margin-bottom: 0.5rem;">✓ Complete Student Management</li>
+                <li style="margin-bottom: 0.5rem;">✓ Attendance Tracking</li>
+                <li style="margin-bottom: 0.5rem;">✓ Grade Management</li>
+                <li style="margin-bottom: 0.5rem;">✓ Course & Class Scheduling</li>
+                <li style="margin-bottom: 0.5rem;">✓ Real-time Reports & Analytics</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

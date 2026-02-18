@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if student else 'Add' }} Student{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    📊 Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_students') }}" class="sidebar-link active">
+                    👨‍🎓 Students
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_staff') }}" class="sidebar-link">
+                    👨‍🏫 Staff
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_courses') }}" class="sidebar-link">
+                    📚 Courses
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_classes') }}" class="sidebar-link">
+                    🏫 Classes
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">
+                    📝 Enrollments
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">{{ 'Edit' if student else 'Add New' }} Student</h1>
+            <a href="{{ url_for('admin_students') }}" class="btn btn-secondary">← Back to Students</a>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="first_name" class="form-label">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" class="form-control" 
+                               value="{{ student.First_Name if student else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name" class="form-label">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" class="form-control" 
+                               value="{{ student.Last_Name if student else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dob" class="form-label">Date of Birth *</label>
+                        <input type="date" id="dob" name="dob" class="form-control" 
+                               value="{{ student.DOB if student else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" id="email" name="email" class="form-control" 
+                               value="{{ student.Email if student else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="street_address" class="form-label">Street Address</label>
+                        <input type="text" id="street_address" name="street_address" class="form-control" 
+                               value="{{ student.Street_Address if student else '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" id="city" name="city" class="form-control" 
+                               value="{{ student.City if student else '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="zip_code" class="form-label">Zip Code</label>
+                        <input type="text" id="zip_code" name="zip_code" class="form-control" 
+                               value="{{ student.Zip_Code if student else '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="enrollment_year" class="form-label">Enrollment Year *</label>
+                        <input type="number" id="enrollment_year" name="enrollment_year" class="form-control" 
+                               value="{{ student.Enrollment_Year if student else '2026' }}" required>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">{{ 'Update' if student else 'Add' }} Student</button>
+                    <a href="{{ url_for('admin_students') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

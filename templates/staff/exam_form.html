@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Add Exam{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('staff_dashboard') }}" class="sidebar-link">📊 Dashboard</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Add New Exam</h1>
+            <a href="{{ url_for('staff_grades', class_id=class_id) }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="title" class="form-label">Exam Title *</label>
+                    <input type="text" id="title" name="title" class="form-control" 
+                           placeholder="e.g., Midterm, Final, Quiz 1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="total_marks" class="form-label">Total Marks *</label>
+                    <input type="number" id="total_marks" name="total_marks" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weightage_percent" class="form-label">Weightage (%) *</label>
+                    <input type="number" id="weightage_percent" name="weightage_percent" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="exam_date" class="form-label">Exam Date *</label>
+                    <input type="date" id="exam_date" name="exam_date" class="form-control" required>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Add Exam</button>
+                    <a href="{{ url_for('staff_grades', class_id=class_id) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

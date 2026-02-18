@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Management{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    📊 Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_students') }}" class="sidebar-link">
+                    👨‍🎓 Students
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_staff') }}" class="sidebar-link active">
+                    👨‍🏫 Staff
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_courses') }}" class="sidebar-link">
+                    📚 Courses
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_classes') }}" class="sidebar-link">
+                    🏫 Classes
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">
+                    📝 Enrollments
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Staff Management</h1>
+            <a href="{{ url_for('admin_staff_add') }}" class="btn btn-primary">➕ Add New Staff</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">All Staff Members ({{ staff|length }})</div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Designation</th>
+                            <th>Hire Date</th>
+                            <th>City</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in staff %}
+                        <tr>
+                            <td>{{ member.Staff_ID }}</td>
+                            <td>{{ member.First_Name }} {{ member.Last_Name }}</td>
+                            <td>{{ member.Email }}</td>
+                            <td><span class="badge badge-info">{{ member.Designation }}</span></td>
+                            <td>{{ member.Hire_Date }}</td>
+                            <td>{{ member.City }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

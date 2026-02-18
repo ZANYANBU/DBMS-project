@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Classes Management{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">📊 Dashboard</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_students') }}" class="sidebar-link">👨‍🎓 Students</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_staff') }}" class="sidebar-link">👨‍🏫 Staff</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_courses') }}" class="sidebar-link">📚 Courses</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_classes') }}" class="sidebar-link active">🏫 Classes</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">📝 Enrollments</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Classes Management</h1>
+            <a href="{{ url_for('admin_class_add') }}" class="btn btn-primary">➕ Add New Class</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">All Classes ({{ classes|length }})</div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Semester</th>
+                            <th>Teacher</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cls in classes %}
+                        <tr>
+                            <td>{{ cls.Class_ID }}</td>
+                            <td><span class="badge badge-info">{{ cls.Code }}</span> {{ cls.Title }}</td>
+                            <td>{{ cls.Section }}</td>
+                            <td>{{ cls.Semester }}</td>
+                            <td>{{ cls.Teacher_Name or 'Not Assigned' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

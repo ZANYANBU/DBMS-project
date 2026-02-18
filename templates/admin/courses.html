@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Courses Management{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    📊 Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_students') }}" class="sidebar-link">
+                    👨‍🎓 Students
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_staff') }}" class="sidebar-link">
+                    👨‍🏫 Staff
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_courses') }}" class="sidebar-link active">
+                    📚 Courses
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_classes') }}" class="sidebar-link">
+                    🏫 Classes
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">
+                    📝 Enrollments
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Courses Management</h1>
+            <a href="{{ url_for('admin_course_add') }}" class="btn btn-primary">➕ Add New Course</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">All Courses ({{ courses|length }})</div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Code</th>
+                            <th>Title</th>
+                            <th>Credits</th>
+                            <th>Department</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>{{ course.Course_ID }}</td>
+                            <td><span class="badge badge-info">{{ course.Code }}</span></td>
+                            <td>{{ course.Title }}</td>
+                            <td>{{ course.Credits }}</td>
+                            <td>{{ course.Department_Name or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

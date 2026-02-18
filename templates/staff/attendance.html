@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('staff_dashboard') }}" class="sidebar-link">📊 Dashboard</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Mark Attendance - {{ class_info.Code }}</h1>
+            <a href="{{ url_for('staff_class_detail', class_id=class_info.Class_ID) }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="date" class="form-label">Date *</label>
+                    <input type="date" id="date" name="date" class="form-control" value="{{ today }}" required>
+                </div>
+                
+                <div class="card-header">Students ({{ students|length }})</div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ student.Student_ID }}</td>
+                                <td>{{ student.First_Name }} {{ student.Last_Name }}</td>
+                                <td>
+                                    <select name="status_{{ student.Student_ID }}" class="form-control" required>
+                                        <option value="Present" {{ 'selected' if existing_attendance.get(student.Student_ID) == 'Present' else '' }}>Present</option>
+                                        <option value="Absent" {{ 'selected' if existing_attendance.get(student.Student_ID) == 'Absent' else '' }}>Absent</option>
+                                        <option value="Late" {{ 'selected' if existing_attendance.get(student.Student_ID) == 'Late' else '' }}>Late</option>
+                                        <option value="Excused" {{ 'selected' if existing_attendance.get(student.Student_ID) == 'Excused' else '' }}>Excused</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">Save Attendance</button>
+                    <a href="{{ url_for('staff_class_detail', class_id=class_info.Class_ID) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}My Attendance{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_dashboard') }}" class="sidebar-link">📊 Dashboard</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_grades') }}" class="sidebar-link">📝 My Grades</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_attendance') }}" class="sidebar-link active">✅ My Attendance</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_schedule') }}" class="sidebar-link">📅 My Schedule</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">My Attendance</h1>
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <!-- Attendance Statistics -->
+        <div class="stats-grid">
+            {% for stat in stats %}
+            <div class="stat-card {{ 'success' if stat.Percentage >= 75 else 'warning' if stat.Percentage >= 60 else 'danger' }}">
+                <div class="stat-value">{{ "%.1f"|format(stat.Percentage) }}%</div>
+                <div class="stat-label">{{ stat.Code }} - {{ stat.Title }}</div>
+                <div style="opacity: 0.8; margin-top: 0.5rem;">
+                    {{ stat.Present_Days }} / {{ stat.Total_Days }} days
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Attendance Records</div>
+            
+            {% if attendance|length == 0 %}
+            <p style="padding: 2rem; text-align: center; color: #64748b;">
+                No attendance records yet.
+            </p>
+            {% else %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Semester</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance %}
+                        <tr>
+                            <td>{{ record.Date }}</td>
+                            <td><span class="badge badge-info">{{ record.Code }}</span> {{ record.Title }}</td>
+                            <td>{{ record.Section }}</td>
+                            <td>{{ record.Semester }}</td>
+                            <td>
+                                <span class="badge badge-{{ 'success' if record.Status == 'Present' else 'danger' if record.Status == 'Absent' else 'warning' }}">
+                                    {{ record.Status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

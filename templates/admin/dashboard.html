@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link active">
+                    📊 Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_students') }}" class="sidebar-link">
+                    👨‍🎓 Students
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_staff') }}" class="sidebar-link">
+                    👨‍🏫 Staff
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_courses') }}" class="sidebar-link">
+                    📚 Courses
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_classes') }}" class="sidebar-link">
+                    🏫 Classes
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">
+                    📝 Enrollments
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Admin Dashboard</h1>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.total_students }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value">{{ stats.total_staff }}</div>
+                <div class="stat-label">Total Staff</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value">{{ stats.total_courses }}</div>
+                <div class="stat-label">Total Courses</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-value">{{ stats.total_classes }}</div>
+                <div class="stat-label">Active Classes</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-value">{{ stats.active_enrollments }}</div>
+                <div class="stat-label">Active Enrollments</div>
+            </div>
+        </div>
+        
+        <!-- Recent Enrollments -->
+        <div class="card">
+            <div class="card-header">Recent Enrollments</div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Semester</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in recent_enrollments %}
+                        <tr>
+                            <td>{{ enrollment.Date_Enrolled }}</td>
+                            <td>{{ enrollment.Student_Name }}</td>
+                            <td>{{ enrollment.Course_Title }}</td>
+                            <td>{{ enrollment.Section }}</td>
+                            <td>{{ enrollment.Semester }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

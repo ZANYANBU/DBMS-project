@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if cls else 'Add' }} Class{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">📊 Dashboard</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_students') }}" class="sidebar-link">👨‍🎓 Students</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_staff') }}" class="sidebar-link">👨‍🏫 Staff</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_courses') }}" class="sidebar-link">📚 Courses</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_classes') }}" class="sidebar-link active">🏫 Classes</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">📝 Enrollments</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">{{ 'Edit' if cls else 'Add New' }} Class</h1>
+            <a href="{{ url_for('admin_classes') }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="course_id" class="form-label">Course *</label>
+                    <select id="course_id" name="course_id" class="form-control" required>
+                        <option value="">Select Course</option>
+                        {% for course in courses %}
+                        <option value="{{ course.Course_ID }}" {{ 'selected' if cls and cls.Course_ID == course.Course_ID else '' }}>
+                            {{ course.Code }} - {{ course.Title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="section" class="form-label">Section *</label>
+                    <input type="text" id="section" name="section" class="form-control" 
+                           value="{{ cls.Section if cls else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="semester" class="form-label">Semester *</label>
+                    <input type="text" id="semester" name="semester" class="form-control" 
+                           value="{{ cls.Semester if cls else 'Spring 2026' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="teacher_id" class="form-label">Teacher</label>
+                    <select id="teacher_id" name="teacher_id" class="form-control">
+                        <option value="">Select Teacher</option>
+                        {% for teacher in teachers %}
+                        <option value="{{ teacher.Staff_ID }}" {{ 'selected' if cls and cls.Teacher_ID == teacher.Staff_ID else '' }}>
+                            {{ teacher.First_Name }} {{ teacher.Last_Name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">{{ 'Update' if cls else 'Add' }} Class</button>
+                    <a href="{{ url_for('admin_classes') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Enrollments Management{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">📊 Dashboard</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_students') }}" class="sidebar-link">👨‍🎓 Students</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_staff') }}" class="sidebar-link">👨‍🏫 Staff</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_courses') }}" class="sidebar-link">📚 Courses</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_classes') }}" class="sidebar-link">🏫 Classes</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_enrollments') }}" class="sidebar-link active">📝 Enrollments</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Enrollments Management</h1>
+            <a href="{{ url_for('admin_enrollment_add') }}" class="btn btn-primary">➕ Add New Enrollment</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">All Enrollments ({{ enrollments|length }})</div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Semester</th>
+                            <th>Date Enrolled</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in enrollments %}
+                        <tr>
+                            <td>{{ enrollment.Enrollment_ID }}</td>
+                            <td>{{ enrollment.Student_Name }}</td>
+                            <td>{{ enrollment.Course_Info }}</td>
+                            <td>{{ enrollment.Section }}</td>
+                            <td>{{ enrollment.Semester }}</td>
+                            <td>{{ enrollment.Date_Enrolled }}</td>
+                            <td>
+                                <span class="badge badge-{{ 'success' if enrollment.Status == 'Enrolled' else 'secondary' }}">
+                                    {{ enrollment.Status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

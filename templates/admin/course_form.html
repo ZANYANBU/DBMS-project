@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit' if course else 'Add' }} Course{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">📊 Dashboard</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_students') }}" class="sidebar-link">👨‍🎓 Students</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_staff') }}" class="sidebar-link">👨‍🏫 Staff</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_courses') }}" class="sidebar-link active">📚 Courses</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_classes') }}" class="sidebar-link">🏫 Classes</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">📝 Enrollments</a></li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">{{ 'Edit' if course else 'Add New' }} Course</h1>
+            <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="code" class="form-label">Course Code *</label>
+                    <input type="text" id="code" name="code" class="form-control" 
+                           value="{{ course.Code if course else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title" class="form-label">Course Title *</label>
+                    <input type="text" id="title" name="title" class="form-control" 
+                           value="{{ course.Title if course else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="credits" class="form-label">Credits *</label>
+                    <input type="number" id="credits" name="credits" class="form-control" 
+                           value="{{ course.Credits if course else '' }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dept_id" class="form-label">Department</label>
+                    <select id="dept_id" name="dept_id" class="form-control">
+                        <option value="">Select Department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.Dept_ID }}" {{ 'selected' if course and course.Dept_ID == dept.Dept_ID else '' }}>
+                            {{ dept.Name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">{{ 'Update' if course else 'Add' }} Course</button>
+                    <a href="{{ url_for('admin_courses') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

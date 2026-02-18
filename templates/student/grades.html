@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}My Grades{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_dashboard') }}" class="sidebar-link">📊 Dashboard</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_grades') }}" class="sidebar-link active">📝 My Grades</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_attendance') }}" class="sidebar-link">✅ My Attendance</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('student_schedule') }}" class="sidebar-link">📅 My Schedule</a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">My Grades</h1>
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">← Back</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">All Grades</div>
+            
+            {% if grades|length == 0 %}
+            <p style="padding: 2rem; text-align: center; color: #64748b;">
+                No grades available yet.
+            </p>
+            {% else %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Semester</th>
+                            <th>Exam</th>
+                            <th>Marks Obtained</th>
+                            <th>Total Marks</th>
+                            <th>Percentage</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade in grades %}
+                        <tr>
+                            <td><span class="badge badge-info">{{ grade.Code }}</span> {{ grade.Course_Title }}</td>
+                            <td>{{ grade.Section }}</td>
+                            <td>{{ grade.Semester }}</td>
+                            <td>{{ grade.Exam_Title }}</td>
+                            <td><strong>{{ "%.2f"|format(grade.Marks_Obtained) }}</strong></td>
+                            <td>{{ grade.Total_Marks }}</td>
+                            <td>
+                                {% set percentage = (grade.Marks_Obtained / grade.Total_Marks * 100) %}
+                                <span class="badge badge-{{ 'success' if percentage >= 70 else 'danger' if percentage < 50 else 'warning' }}">
+                                    {{ "%.1f"|format(percentage) }}%
+                                </span>
+                            </td>
+                            <td>{{ grade.Comments or '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

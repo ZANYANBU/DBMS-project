@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Students Management{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    📊 Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_students') }}" class="sidebar-link active">
+                    👨‍🎓 Students
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_staff') }}" class="sidebar-link">
+                    👨‍🏫 Staff
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_courses') }}" class="sidebar-link">
+                    📚 Courses
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_classes') }}" class="sidebar-link">
+                    🏫 Classes
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">
+                    📝 Enrollments
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Students Management</h1>
+            <a href="{{ url_for('admin_student_add') }}" class="btn btn-primary">➕ Add New Student</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">All Students ({{ students|length }})</div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>DOB</th>
+                            <th>City</th>
+                            <th>Enrollment Year</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.Student_ID }}</td>
+                            <td>{{ student.First_Name }} {{ student.Last_Name }}</td>
+                            <td>{{ student.Email }}</td>
+                            <td>{{ student.DOB }}</td>
+                            <td>{{ student.City }}</td>
+                            <td>{{ student.Enrollment_Year }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('admin_student_edit', id=student.Student_ID) }}" class="btn btn-secondary btn-sm">Edit</a>
+                                    <a href="{{ url_for('admin_student_delete', id=student.Student_ID) }}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
