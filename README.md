@@ -1,199 +1,91 @@
-# 🎓 School Management System
+#  School Management System (DBMS Project)
 
-A comprehensive, enterprise-level classroom management system built with Flask and SQLite.
+A robust, normalized relational database system designed to manage the complex data requirements of an educational institution. This project demonstrates the implementation of a schema handling students, staff, curriculum, attendance, and grading.
 
-## Features
+##  Database Architecture
 
-### 🔐 Multi-Level Authentication
-- **Admin Access**: Full system control with complete CRUD operations
-- **Staff Access**: Class management, attendance tracking, and grade entry
-- **Student Access**: View grades, attendance, and class schedules
+The project features a well-structured SQLite database with **3NF/BCNF normalization** ensuring data integrity and minimal redundancy.
 
-### 📚 Complete Management Capabilities
-- Student Management (Add, Edit, Delete, View)
-- Staff Management (Add, Edit, View)
-- Course Management (Add, Edit, View)
-- Class Management (Add, Edit, View)
-- Enrollment Management (Add, View)
-- Attendance Tracking (Mark and View)
-- Grade Management (Create exams, enter grades)
-- Class Scheduling (View schedules)
+### Key Entities & Relationships
+1.  **Staff & Departments**: 
+    - Handles teaching and non-teaching staff.
+    - Manages department hierarchies and Head of Department (HOD) assignments (1:1 relationships).
+    - Tracks staff qualifications as a multi-valued attribute.
+2.  **Student Information System**:
+    - Stores comprehensive student profiles.
+    - Manages multi-valued attributes like phone numbers.
+    - **Weak Entity Implementation**: Guardian information is linked strictly to students.
+3.  **Academic Structure**:
+    - **Courses**: The catalog of subjects offered.
+    - **Classes**: Specific instances of courses for a given term/semester.
+    - **Enrollments**: Many-to-Many relationship between Students and Classes.
+4.  **Logistics**:
+    - **Classrooms**: Manages room capacity and types (Lab, Lecture Hall).
+    - **Timetabling**: Allocation of classes to rooms at specific times (scheduling).
+5.  **Assessment**:
+    - **Exams**: Linked to specific classes.
+    - **Grades**: Tracks student performance in exams.
+    - **Attendance**: Daily tracking with status constraints.
 
-### 💾 Robust Database Design
-- Normalized schema (3NF/BCNF)
-- Referential integrity enforced
-- Multi-valued attributes handled
-- Composite attributes split appropriately
-- Weak entities included (Guardians)
-
-## Quick Start
+##  Getting Started
 
 ### Prerequisites
-- Python 3.7+ installed
-- pip (Python package manager)
+*   Python 3.x
+*   SQLite3
 
-### Installation & Running
+### Installation
 
-#### Option 1: Using PowerShell Script (Recommended)
-```powershell
-.\start.ps1
-```
+1.  **Clone the repository:**
+    \\\ash
+    git clone https://github.com/zanyanbu/DBMS-project.git
+    cd DBMS-project
+    \\\
 
-#### Option 2: Manual Setup
-```powershell
-# Install Flask
-pip install flask
+2.  **Initialize the Database:**
+    Run the initialization script to build the schema and populate initial data.
+    \\\ash
+    python init_db.py
+    \\\
 
-# Initialize database
-python init_db.py
+### Usage
 
-# Run the application
-python app.py
-```
+**1. Verification:**
+Check the contents of the database tables to ensure data is loaded correctly.
+\\\ash
+python check_contents.py
+\\\
 
-The application will start at: **http://127.0.0.1:5000**
+**2. Run Custom SQL Queries:**
+Execute your own SQL commands defined in \custom_query.sql\.
+\\\ash
+python run_custom.py
+\\\
 
-## Default Login Credentials
+**3. Interactive Shell:**
+Open a direct SQL shell to query the database in real-time.
+\\\ash
+python interactive_shell.py
+\\\
+*Example shell command:*
+\\\sql
+SELECT * FROM Student WHERE Enrollment_Year = 2024;
+\\\
 
-### Admin
-- **Username**: `admin`
-- **Password**: `admin123`
-- **Access**: Full system administration
+**4. Generate Reports:**
+Run pre-defined complex queries (joins, aggregations) to see the system in action.
+\\\ash
+python run_queries.py
+\\\
 
-### Staff (Examples)
-- **Username**: `snape` (or any staff email prefix)
-- **Password**: `staff123`
-- **Access**: Class management, attendance, grades
+##  Project Structure
 
-Some other staff usernames:
-- `lupin`, `slughorn`, `sprout`, `flit`
+*   \school_management.sql\: The core DDL/DML script defining the schema and relationships.
+*   \init_db.py\: Python script to bootstrap the SQLite database.
+*   \check_contents.py\: Utility to inspect table data.
+*   \interactive_shell.py\: A CLI interface for executing raw SQL.
+*   \un_queries.py\: Collection of analytical queries (e.g., student schedules, grade reports).
 
-### Student (Examples)
-- **Username**: `harry` (or any student email prefix)
-- **Password**: `student123`
-- **Access**: View grades, attendance, schedule
-
-Some other student usernames:
-- `hermione`, `ron`, `draco`, `luna`, `neville`
-
-## System Structure
-
-```
-SQL/
-├── app.py                      # Main Flask application
-├── init_db.py                  # Database initialization script
-├── start.ps1                   # PowerShell startup script
-├── school_management.sql       # SQL schema and data
-├── school_management.db        # SQLite database (created on first run)
-├── static/
-│   └── css/
-│       └── style.css          # Modern CSS styling
-└── templates/
-    ├── base.html              # Base template
-    ├── index.html             # Landing page
-    ├── login.html             # Login page
-    ├── error.html             # Error page
-    ├── admin/                 # Admin templates
-    │   ├── dashboard.html
-    │   ├── students.html
-    │   ├── student_form.html
-    │   ├── staff.html
-    │   ├── staff_form.html
-    │   ├── courses.html
-    │   ├── course_form.html
-    │   ├── classes.html
-    │   ├── class_form.html
-    │   ├── enrollments.html
-    │   └── enrollment_form.html
-    ├── staff/                 # Staff templates
-    │   ├── dashboard.html
-    │   ├── class_detail.html
-    │   ├── attendance.html
-    │   ├── grades.html
-    │   └── exam_form.html
-    └── student/               # Student templates
-        ├── dashboard.html
-        ├── grades.html
-        ├── attendance.html
-        └── schedule.html
-```
-
-## User Workflows
-
-### Admin Workflow
-1. Login with admin credentials
-2. Access admin dashboard with system statistics
-3. Manage students, staff, courses, classes, and enrollments
-4. Add/Edit/Delete records as needed
-5. View comprehensive reports
-
-### Staff Workflow
-1. Login with staff credentials
-2. View assigned classes
-3. Mark attendance for classes
-4. Create exams and enter grades
-5. View student rosters
-
-### Student Workflow
-1. Login with student credentials
-2. View enrolled classes
-3. Check grades for all exams
-4. View attendance records and statistics
-5. See class schedule
-
-## Database Schema
-
-The system uses 15 interconnected tables:
-- **Staff**: Staff members with designations
-- **Staff_Phone**: Multiple phone numbers per staff
-- **Staff_Qualification**: Academic qualifications
-- **Department**: Academic departments
-- **Student**: Student records
-- **Student_Phone**: Multiple phone numbers per student
-- **Guardian**: Student guardians/emergency contacts
-- **Classroom**: Physical classrooms
-- **Course**: Course catalog
-- **Class**: Class instances (course offerings)
-- **Class_Schedule**: Time and room allocation
-- **Enrollment**: Student-Class relationships
-- **Exam**: Examinations
-- **Grade**: Exam scores
-- **Attendance**: Daily attendance records
-
-## Security Features
-- Password hashing (SHA-256)
-- Session-based authentication
-- Role-based access control
-- SQL injection prevention (parameterized queries)
-- CSRF protection via Flask sessions
-
-## Technology Stack
-- **Backend**: Python Flask
-- **Database**: SQLite3
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Authentication**: Session-based with password hashing
-
-## Development Notes
-- The application runs in debug mode by default
-- The database is automatically initialized on first run
-- User accounts are automatically created for all staff and students
-- Foreign key constraints are enforced
-
-## Support & Customization
-This system is designed to be easily customizable. Key areas for customization:
-- Add more designations in the Staff table
-- Extend the grading system
-- Add more reports and analytics
-- Implement email notifications
-- Add file upload capabilities
-- Integrate with external systems
-
-## License
-Educational/Academic Use
-
-## Contact
-For issues or questions, refer to the application logs or database schema.
-
----
-
-**Enjoy managing your school with this comprehensive system!** 🎓✨
+##  Tech Stack
+*   **Database Engine**: SQLite
+*   **Language**: SQL, Python
+*   **Concepts**: Relational Theory, Normalization, Foreign Keys, Constraints, Joins
