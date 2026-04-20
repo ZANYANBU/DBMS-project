@@ -1,91 +1,138 @@
-#  School Management System (DBMS Project)
+# School Management System (DBMS Project)
 
-A robust, normalized relational database system designed to manage the complex data requirements of an educational institution. This project demonstrates the implementation of a schema handling students, staff, curriculum, attendance, and grading.
+A robust school database and web application for managing students, staff, courses, classes, attendance, and grades.
 
-##  Database Architecture
+## Overview
 
-The project features a well-structured SQLite database with **3NF/BCNF normalization** ensuring data integrity and minimal redundancy.
+This project uses a normalized relational model (3NF/BCNF concepts) with strong foreign key constraints and role-based application features.
 
-### Key Entities & Relationships
-1.  **Staff & Departments**: 
-    - Handles teaching and non-teaching staff.
-    - Manages department hierarchies and Head of Department (HOD) assignments (1:1 relationships).
-    - Tracks staff qualifications as a multi-valued attribute.
-2.  **Student Information System**:
-    - Stores comprehensive student profiles.
-    - Manages multi-valued attributes like phone numbers.
-    - **Weak Entity Implementation**: Guardian information is linked strictly to students.
-3.  **Academic Structure**:
-    - **Courses**: The catalog of subjects offered.
-    - **Classes**: Specific instances of courses for a given term/semester.
-    - **Enrollments**: Many-to-Many relationship between Students and Classes.
-4.  **Logistics**:
-    - **Classrooms**: Manages room capacity and types (Lab, Lecture Hall).
-    - **Timetabling**: Allocation of classes to rooms at specific times (scheduling).
-5.  **Assessment**:
-    - **Exams**: Linked to specific classes.
-    - **Grades**: Tracks student performance in exams.
-    - **Attendance**: Daily tracking with status constraints.
+Main functional areas:
+1. Staff and department management
+2. Student profile and guardian tracking
+3. Course, class, and enrollment management
+4. Attendance and grading workflows
+5. Admin SQL console and live terminal demo
 
-##  Getting Started
+## Getting Started
 
 ### Prerequisites
-*   Python 3.x
-*   SQLite3
+1. Python 3.x
+2. SQLite3
 
-### Installation
+### Setup
+1. Clone repository:
 
-1.  **Clone the repository:**
-    \\\ash
-    git clone https://github.com/zanyanbu/DBMS-project.git
-    cd DBMS-project
-    \\\
+```bash
+git clone https://github.com/ZANYANBU/DBMS-project.git
+cd DBMS-project
+```
 
-2.  **Initialize the Database:**
-    Run the initialization script to build the schema and populate initial data.
-    \\\ash
-    python init_db.py
-    \\\
+2. Initialize database:
 
-### Usage
+```bash
+python init_db.py
+```
 
-**1. Verification:**
-Check the contents of the database tables to ensure data is loaded correctly.
-\\\ash
+3. Start web application:
+
+```bash
+python app.py
+```
+
+4. Open in browser:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Useful Commands
+
+Verify contents:
+
+```bash
 python check_contents.py
-\\\
+```
 
-**2. Run Custom SQL Queries:**
-Execute your own SQL commands defined in \custom_query.sql\.
-\\\ash
+Run custom SQL batch:
+
+```bash
 python run_custom.py
-\\\
+```
 
-**3. Interactive Shell:**
-Open a direct SQL shell to query the database in real-time.
-\\\ash
+Open interactive SQL shell:
+
+```bash
 python interactive_shell.py
-\\\
-*Example shell command:*
-\\\sql
-SELECT * FROM Student WHERE Enrollment_Year = 2024;
-\\\
+```
 
-**4. Generate Reports:**
-Run pre-defined complex queries (joins, aggregations) to see the system in action.
-\\\ash
+Run report queries:
+
+```bash
 python run_queries.py
-\\\
+```
 
-##  Project Structure
+## Screenshot Gallery
 
-*   \school_management.sql\: The core DDL/DML script defining the schema and relationships.
-*   \init_db.py\: Python script to bootstrap the SQLite database.
-*   \check_contents.py\: Utility to inspect table data.
-*   \interactive_shell.py\: A CLI interface for executing raw SQL.
-*   \un_queries.py\: Collection of analytical queries (e.g., student schedules, grade reports).
+Store screenshots inside:
 
-##  Tech Stack
-*   **Database Engine**: SQLite
-*   **Language**: SQL, Python
-*   **Concepts**: Relational Theory, Normalization, Foreign Keys, Constraints, Joins
+```text
+docs/screenshots/
+```
+
+Current screenshot slots used by this README:
+1. Login page
+2. Student list page
+3. Live terminal demo
+4. SQL query demo
+
+### Login Page
+
+![Login Page](docs/screenshots/login-page.png)
+
+### Student List
+
+![Student List](docs/screenshots/student-list.png)
+
+### Live Terminal Demo
+
+![Live Terminal Demo](docs/screenshots/live-terminal-demo.png)
+
+### SQL Query Demo
+
+![SQL Query Demo](docs/screenshots/sql-query-demo.png)
+
+## How To Update Screenshots
+
+Use this workflow so screenshot links never need to change.
+
+1. Take a new screenshot from the running app.
+2. Rename it to one of these exact filenames:
+   1. login-page.png
+   2. student-list.png
+   3. live-terminal-demo.png
+   4. sql-query-demo.png
+3. Place or replace the file in docs/screenshots/.
+4. Commit and push changes.
+
+Recommended update commands:
+
+```bash
+git add README.md docs/screenshots/
+git commit -m "Update README screenshots"
+git push origin main
+```
+
+## Project Structure
+
+1. school_management.sql: Core schema and seed data
+2. init_db.py: Initializes database from SQL file
+3. app.py: Flask web app with role-based dashboards
+4. templates/: HTML pages for admin/staff/student/demo views
+5. static/: CSS and front-end assets
+
+## Tech Stack
+
+1. Database: SQLite
+2. Backend: Python, Flask
+3. Frontend: HTML, CSS, JavaScript
+4. Concepts: Relational modeling, normalization, foreign keys, joins
