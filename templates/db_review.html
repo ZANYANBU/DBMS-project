@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBMS Review Interface (Terminal Mode)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --accent-color: #00ff00;
+            --input-bg: #2d2d2d;
+            --border-color: #333;
+            --error-color: #ff5555;
+            --success-color: #50fa7b;
+        }
+        
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            font-family: 'Fira Code', 'Courier New', monospace; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+            line-height: 1.5; 
+        }
+        
+        h1 { 
+            border-bottom: 1px solid var(--accent-color); 
+            padding-bottom: 0.5rem; 
+            color: var(--accent-color);
+            text-transform: uppercase;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        h1::before { content: "> "; }
+        
+        .terminal-window {
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #111;
+        }
+        
+        .terminal-header {
+            background: #333;
+            padding: 5px 10px;
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+        
+        .control-group { margin: 1.5rem; }
+        
+        label { 
+            display: block; 
+            color: #888; 
+            margin-bottom: 0.5rem; 
+            font-size: 0.9rem;
+        }
+        
+        select, textarea, button { 
+            width: 100%; 
+            padding: 0.8rem; 
+            font-family: 'Fira Code', monospace; 
+            font-size: 1rem; 
+            box-sizing: border-box; 
+            border-radius: 4px;
+        }
+        
+        select {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        
+        textarea { 
+            height: 150px; 
+            background-color: #000;
+            color: var(--success-color);
+            border: 1px solid var(--border-color);
+            resize: vertical; 
+            margin-bottom: 0.5rem;
+            padding: 1rem;
+        }
+        
+        button { 
+            background-color: var(--accent-color); 
+            color: #000; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        
+        button:hover { 
+            background-color: #32ff32;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        
+        #results-area { 
+            margin: 1.5rem;
+            border-top: 1px dashed #444; 
+            padding-top: 1rem; 
+        }
+        
+        #output {
+            background: #000;
+            padding: 1rem;
+            border: 1px solid #333;
+            min-height: 100px;
+            overflow-x: auto;
+        }
+        
+        .status-line { color: #666; font-size: 0.8rem; margin-bottom: 1rem; }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem; 
+            font-size: 0.9rem;
+        }
+        
+        th, td { 
+            border: 1px solid #444; 
+            padding: 0.5rem; 
+            text-align: left; 
+        }
+        
+        th { 
+            background-color: #222; 
+            color: var(--accent-color);
+            text-transform: uppercase;
+        }
+        
+        tr:nth-child(even) { background-color: #1a1a1a; }
+        
+        .error { color: var(--error-color); }
+        .success-msg { color: var(--success-color); }
+        
+        pre { 
+            color: #aaa;
+            margin: 0;
+        }
+        
+        /* Cursor animation */
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: var(--accent-color);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="terminal-window">
+        <!-- Replaced top HTML structure with terminal setup -->
+        <div class="terminal-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <div style="margin-left: 10px; color: #888; font-size: 12px;">user@school-db:~</div>
+        </div>
+        
+        <div style="padding: 1rem;">
+            <h1>DBMS Lab Review (Week 4-6)</h1>
+            
+            <div class="control-group">
+                <label for="topic-select">root@db-server:~$ select_module.sh</label>
+                <select id="topic-select">
+                    <option value="">-- Choose Operation --</option>
+                    <option value="setup">0. ./setup_data.sh (Initialize DB)</option>
+                    <option value="aggregates">1. Week 4: Aggregate Functions</option>
+                    <option value="union">2. Week 4: Set Operations (UNION)</option>
+                    <option value="subquery">3. Week 5: Subqueries</option>
+                    <option value="joins">4. Week 5: JOIN Operations</option>
+                    <option value="create_view">5. Week 5: Create View</option>
+                    <option value="select_view">6. Week 5: Query View</option>
+                    <option disabled>--- Week 6 (MySQL Only) ---</option>
+                    <option value="week6_procedure">7. Week 6: Procedure (Exception Handling)</option>
+                    <option value="week6_function">8. Week 6: Function (Deterministic)</option>
+                    <option value="week6_cursor">9. Week 6: Cursor (Row-by-Row)</option>
+                    <option value="week6_trigger">10. Week 6: Trigger (Min Salary)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="sql-query">root@db-server:~$ execute_sql.py</label>
+                <textarea id="sql-query" spellcheck="false" placeholder="Enter SQL command..."></textarea>
+                <button id="execute-btn">RUN COMMAND</button>
+            </div>
+
+            <div id="results-area">
+                <div class="status-line">root@db-server:~$ cat output.log</div>
+                <div id="output">
+                    <span style="color: #666"># Ready to execute queries...</span><br>
+                    <span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const queries = {
+            setup: `-- RUN_SCHEMA_SETUP
+DELETE FROM Enrollment;
+DELETE FROM Student;
+DELETE FROM Class;
+DELETE FROM Course;
+DELETE FROM Department;
+DELETE FROM Staff;
+-- Note: Schema columns (Dept, Age, Grade) are added automatically by the server backend.
+INSERT INTO Staff (Staff_ID, First_Name, Last_Name, Email, Hire_Date, Role) VALUES
+(1, 'John', 'Doe', 'john.doe@school.edu', '2020-01-01', 'Teacher'),
+(2, 'Jane', 'Smith', 'jane.smith@school.edu', '2020-01-01', 'Teacher'),
+(3, 'Bob', 'Jones', 'bob.jones@school.edu', '2020-01-01', 'Teacher'),
+(4, 'Alice', 'White', 'alice.white@school.edu', '2020-01-01', 'Teacher');
+INSERT INTO Department (Dept_ID, Name, HOD_Staff_ID) VALUES
+(1, 'CSE', 1), (2, 'ECE', 2), (3, 'MECH', 3), (4, 'CIVIL', 4);
+INSERT INTO Course (Course_ID, Code, Title, Credits, Dept_ID) VALUES
+(1, 'CS101', 'Intro to CS', 4, 1), (2, 'EC101', 'Intro to Electronics', 4, 2),
+(3, 'ME101', 'Thermodynamics', 4, 3), (4, 'CV101', 'Structural Eng', 4, 4);
+INSERT INTO Class (Class_ID, Course_ID, Section, Semester, Teacher_ID) VALUES
+(101, 1, 'A', 'Spring 2026', 1), (102, 2, 'A', 'Spring 2026', 2),
+(103, 3, 'A', 'Spring 2026', 3), (104, 4, 'A', 'Spring 2026', 4);
+INSERT INTO Student (Student_ID, First_Name, Last_Name, DOB, Email, Enrollment_Year, City, Dept, Age) VALUES
+(1, 'Aarav', 'Sharma', '2000-01-01', 'aarav.sharma1@example.com', 2023, 'Los Angeles', 'ECE', 22),
+(2, 'Aditi', 'Verma', '2000-01-01', 'aditi.verma2@example.com', 2023, 'Chicago', 'MECH', 22),
+(3, 'Akash', 'Gupta', '2000-01-01', 'akash.gupta3@example.com', 2023, 'Houston', 'CIVIL', 19),
+(4, 'Ananya', 'Malhotra', '2000-01-01', 'ananya.malhotra4@example.com', 2023, 'Phoenix', 'CSE', 18),
+(5, 'Arjun', 'Bhatia', '2000-01-01', 'arjun.bhatia5@example.com', 2023, 'New York', 'ECE', 21),
+(6, 'Bhavya', 'Saxena', '2000-01-01', 'bhavya.saxena6@example.com', 2023, 'Los Angeles', 'MECH', 21),
+(7, 'Chaitanya', 'Mehta', '2000-01-01', 'chaitanya.mehta7@example.com', 2023, 'Chicago', 'CIVIL', 21),
+(8, 'Deepak', 'Chopra', '2000-01-01', 'deepak.chopra8@example.com', 2023, 'Houston', 'CSE', 18),
+(9, 'Divya', 'Desai', '2000-01-01', 'divya.desai9@example.com', 2023, 'Phoenix', 'ECE', 19),
+(10, 'Eshaan', 'Joshi', '2000-01-01', 'eshaan.joshi10@example.com', 2023, 'New York', 'MECH', 19),
+(11, 'Faisal', 'Sharma', '2000-01-01', 'faisal.sharma11@example.com', 2023, 'Los Angeles', 'CIVIL', 22),
+(12, 'Gaurav', 'Verma', '2000-01-01', 'gaurav.verma12@example.com', 2023, 'Chicago', 'CSE', 18),
+(13, 'Hari', 'Gupta', '2000-01-01', 'hari.gupta13@example.com', 2023, 'Houston', 'ECE', 22),
+(14, 'Isha', 'Malhotra', '2000-01-01', 'isha.malhotra14@example.com', 2023, 'Phoenix', 'MECH', 19),
+(15, 'Jatin', 'Bhatia', '2000-01-01', 'jatin.bhatia15@example.com', 2023, 'New York', 'CIVIL', 20),
+(16, 'Karthik', 'Saxena', '2000-01-01', 'karthik.saxena16@example.com', 2023, 'Los Angeles', 'CSE', 22),
+(17, 'Kavya', 'Mehta', '2000-01-01', 'kavya.mehta17@example.com', 2023, 'Chicago', 'ECE', 20),
+(18, 'Laksh', 'Chopra', '2000-01-01', 'laksh.chopra18@example.com', 2023, 'Houston', 'MECH', 18),
+(19, 'Madhav', 'Desai', '2000-01-01', 'madhav.desai19@example.com', 2023, 'Phoenix', 'CIVIL', 18),
+(20, 'Neha', 'Joshi', '2000-01-01', 'neha.joshi20@example.com', 2023, 'New York', 'CSE', 18),
+(21, 'Omkar', 'Sharma', '2000-01-01', 'omkar.sharma21@example.com', 2023, 'Los Angeles', 'ECE', 19),
+(22, 'Pooja', 'Verma', '2000-01-01', 'pooja.verma22@example.com', 2023, 'Chicago', 'MECH', 21),
+(23, 'Pranav', 'Gupta', '2000-01-01', 'pranav.gupta23@example.com', 2023, 'Houston', 'CIVIL', 19),
+(24, 'Rahul', 'Malhotra', '2000-01-01', 'rahul.malhotra24@example.com', 2023, 'Phoenix', 'CSE', 21),
+(25, 'Riya', 'Bhatia', '2000-01-01', 'riya.bhatia25@example.com', 2023, 'New York', 'ECE', 19),
+(26, 'Rohan', 'Saxena', '2000-01-01', 'rohan.saxena26@example.com', 2023, 'Los Angeles', 'MECH', 22),
+(27, 'Sagar', 'Mehta', '2000-01-01', 'sagar.mehta27@example.com', 2023, 'Chicago', 'CIVIL', 20),
+(28, 'Sakshi', 'Chopra', '2000-01-01', 'sakshi.chopra28@example.com', 2023, 'Houston', 'CSE', 20),
+(29, 'Sameer', 'Desai', '2000-01-01', 'sameer.desai29@example.com', 2023, 'Phoenix', 'ECE', 21),
+(30, 'Sanjay', 'Joshi', '2000-01-01', 'sanjay.joshi30@example.com', 2023, 'New York', 'MECH', 19),
+(31, 'Shreya', 'Sharma', '2000-01-01', 'shreya.sharma31@example.com', 2023, 'Los Angeles', 'CIVIL', 22),
+(32, 'Siddharth', 'Verma', '2000-01-01', 'siddharth.verma32@example.com', 2023, 'Chicago', 'CSE', 21),
+(33, 'Sneha', 'Gupta', '2000-01-01', 'sneha.gupta33@example.com', 2023, 'Houston', 'ECE', 20),
+(34, 'Suraj', 'Malhotra', '2000-01-01', 'suraj.malhotra34@example.com', 2023, 'Phoenix', 'MECH', 19),
+(35, 'Swati', 'Bhatia', '2000-01-01', 'swati.bhatia35@example.com', 2023, 'New York', 'CIVIL', 18),
+(36, 'Tarun', 'Saxena', '2000-01-01', 'tarun.saxena36@example.com', 2023, 'Los Angeles', 'CSE', 19),
+(37, 'Tejas', 'Mehta', '2000-01-01', 'tejas.mehta37@example.com', 2023, 'Chicago', 'ECE', 20),
+(38, 'Utkarsh', 'Chopra', '2000-01-01', 'utkarsh.chopra38@example.com', 2023, 'Houston', 'MECH', 22),
+(39, 'Vaishnavi', 'Desai', '2000-01-01', 'vaishnavi.desai39@example.com', 2023, 'Phoenix', 'CIVIL', 21),
+(40, 'Varun', 'Joshi', '2000-01-01', 'varun.joshi40@example.com', 2023, 'New York', 'CSE', 22),
+(41, 'Vedant', 'Sharma', '2000-01-01', 'vedant.sharma41@example.com', 2023, 'Los Angeles', 'ECE', 22),
+(42, 'Vidya', 'Verma', '2000-01-01', 'vidya.verma42@example.com', 2023, 'Chicago', 'MECH', 21),
+(43, 'Vikas', 'Gupta', '2000-01-01', 'vikas.gupta43@example.com', 2023, 'Houston', 'CIVIL', 22),
+(44, 'Vinay', 'Malhotra', '2000-01-01', 'vinay.malhotra44@example.com', 2023, 'Phoenix', 'CSE', 20),
+(45, 'Yash', 'Bhatia', '2000-01-01', 'yash.bhatia45@example.com', 2023, 'New York', 'ECE', 19),
+(46, 'Zara', 'Saxena', '2000-01-01', 'zara.saxena46@example.com', 2023, 'Los Angeles', 'MECH', 19),
+(47, 'Abhinav', 'Mehta', '2000-01-01', 'abhinav.mehta47@example.com', 2023, 'Chicago', 'CIVIL', 19),
+(48, 'Ashwin', 'Chopra', '2000-01-01', 'ashwin.chopra48@example.com', 2023, 'Houston', 'CSE', 20),
+(49, 'Bharat', 'Desai', '2000-01-01', 'bharat.desai49@example.com', 2023, 'Phoenix', 'ECE', 19),
+(50, 'Chetan', 'Joshi', '2000-01-01', 'chetan.joshi50@example.com', 2023, 'New York', 'MECH', 18),
+(51, 'Darshan', 'Sharma', '2000-01-01', 'darshan.sharma51@example.com', 2023, 'Los Angeles', 'CIVIL', 21),
+(52, 'Ekta', 'Verma', '2000-01-01', 'ekta.verma52@example.com', 2023, 'Chicago', 'CSE', 18),
+(53, 'Farhan', 'Gupta', '2000-01-01', 'farhan.gupta53@example.com', 2023, 'Houston', 'ECE', 20),
+(54, 'Gagan', 'Malhotra', '2000-01-01', 'gagan.malhotra54@example.com', 2023, 'Phoenix', 'MECH', 20),
+(55, 'Harsh', 'Bhatia', '2000-01-01', 'harsh.bhatia55@example.com', 2023, 'New York', 'CIVIL', 22),
+(56, 'Imran', 'Saxena', '2000-01-01', 'imran.saxena56@example.com', 2023, 'Los Angeles', 'CSE', 21),
+(57, 'Jay', 'Mehta', '2000-01-01', 'jay.mehta57@example.com', 2023, 'Chicago', 'ECE', 22),
+(58, 'Karan', 'Chopra', '2000-01-01', 'karan.chopra58@example.com', 2023, 'Houston', 'MECH', 22),
+(59, 'Lalit', 'Desai', '2000-01-01', 'lalit.desai59@example.com', 2023, 'Phoenix', 'CIVIL', 19),
+(60, 'Manish', 'Joshi', '2000-01-01', 'manish.joshi60@example.com', 2023, 'New York', 'CSE', 20),
+(61, 'Naman', 'Sharma', '2000-01-01', 'naman.sharma61@example.com', 2023, 'Los Angeles', 'ECE', 22),
+(62, 'Nitin', 'Verma', '2000-01-01', 'nitin.verma62@example.com', 2023, 'Chicago', 'MECH', 20),
+(63, 'Ojas', 'Gupta', '2000-01-01', 'ojas.gupta63@example.com', 2023, 'Houston', 'CIVIL', 19),
+(64, 'Pallavi', 'Malhotra', '2000-01-01', 'pallavi.malhotra64@example.com', 2023, 'Phoenix', 'CSE', 22),
+(65, 'Piyush', 'Bhatia', '2000-01-01', 'piyush.bhatia65@example.com', 2023, 'New York', 'ECE', 20),
+(66, 'Puneet', 'Saxena', '2000-01-01', 'puneet.saxena66@example.com', 2023, 'Los Angeles', 'MECH', 22),
+(67, 'Rajat', 'Mehta', '2000-01-01', 'rajat.mehta67@example.com', 2023, 'Chicago', 'CIVIL', 19),
+(68, 'Rajeev', 'Chopra', '2000-01-01', 'rajeev.chopra68@example.com', 2023, 'Houston', 'CSE', 21),
+(69, 'Rakesh', 'Desai', '2000-01-01', 'rakesh.desai69@example.com', 2023, 'Phoenix', 'ECE', 22),
+(70, 'Ramesh', 'Joshi', '2000-01-01', 'ramesh.joshi70@example.com', 2023, 'New York', 'MECH', 21),
+(71, 'Ravi', 'Sharma', '2000-01-01', 'ravi.sharma71@example.com', 2023, 'Los Angeles', 'CIVIL', 20),
+(72, 'Rishabh', 'Verma', '2000-01-01', 'rishabh.verma72@example.com', 2023, 'Chicago', 'CSE', 20),
+(73, 'Rohan', 'Gupta', '2000-01-01', 'rohan.gupta73@example.com', 2023, 'Houston', 'ECE', 22),
+(74, 'Rohit', 'Malhotra', '2000-01-01', 'rohit.malhotra74@example.com', 2023, 'Phoenix', 'MECH', 19),
+(75, 'Sahil', 'Bhatia', '2000-01-01', 'sahil.bhatia75@example.com', 2023, 'New York', 'CIVIL', 18),
+(76, 'Sandeep', 'Saxena', '2000-01-01', 'sandeep.saxena76@example.com', 2023, 'Los Angeles', 'CSE', 22),
+(77, 'Saurabh', 'Mehta', '2000-01-01', 'saurabh.mehta77@example.com', 2023, 'Chicago', 'ECE', 21),
+(78, 'Shivam', 'Chopra', '2000-01-01', 'shivam.chopra78@example.com', 2023, 'Houston', 'MECH', 19),
+(79, 'Shubham', 'Desai', '2000-01-01', 'shubham.desai79@example.com', 2023, 'Phoenix', 'CIVIL', 18),
+(80, 'Sumit', 'Joshi', '2000-01-01', 'sumit.joshi80@example.com', 2023, 'New York', 'CSE', 20),
+(81, 'Sunil', 'Sharma', '2000-01-01', 'sunil.sharma81@example.com', 2023, 'Los Angeles', 'ECE', 18),
+(82, 'Suresh', 'Verma', '2000-01-01', 'suresh.verma82@example.com', 2023, 'Chicago', 'MECH', 22),
+(83, 'Tanmay', 'Gupta', '2000-01-01', 'tanmay.gupta83@example.com', 2023, 'Houston', 'CIVIL', 18),
+(84, 'Tushar', 'Malhotra', '2000-01-01', 'tushar.malhotra84@example.com', 2023, 'Phoenix', 'CSE', 19),
+(85, 'Udit', 'Bhatia', '2000-01-01', 'udit.bhatia85@example.com', 2023, 'New York', 'ECE', 18),
+(86, 'Vaibhav', 'Saxena', '2000-01-01', 'vaibhav.saxena86@example.com', 2023, 'Los Angeles', 'MECH', 20),
+(87, 'Varun', 'Mehta', '2000-01-01', 'varun.mehta87@example.com', 2023, 'Chicago', 'CIVIL', 18),
+(88, 'Vasant', 'Chopra', '2000-01-01', 'vasant.chopra88@example.com', 2023, 'Houston', 'CSE', 19),
+(89, 'Vijay', 'Desai', '2000-01-01', 'vijay.desai89@example.com', 2023, 'Phoenix', 'ECE', 19),
+(90, 'Vikram', 'Joshi', '2000-01-01', 'vikram.joshi90@example.com', 2023, 'New York', 'MECH', 19),
+(91, 'Vimal', 'Sharma', '2000-01-01', 'vimal.sharma91@example.com', 2023, 'Los Angeles', 'CIVIL', 22),
+(92, 'Vineet', 'Verma', '2000-01-01', 'vineet.verma92@example.com', 2023, 'Chicago', 'CSE', 19),
+(93, 'Vipin', 'Gupta', '2000-01-01', 'vipin.gupta93@example.com', 2023, 'Houston', 'ECE', 18),
+(94, 'Vishal', 'Malhotra', '2000-01-01', 'vishal.malhotra94@example.com', 2023, 'Phoenix', 'MECH', 21),
+(95, 'Vivek', 'Bhatia', '2000-01-01', 'vivek.bhatia95@example.com', 2023, 'New York', 'CIVIL', 19),
+(96, 'Yash', 'Saxena', '2000-01-01', 'yash.saxena96@example.com', 2023, 'Los Angeles', 'CSE', 21),
+(97, 'Yogesh', 'Mehta', '2000-01-01', 'yogesh.mehta97@example.com', 2023, 'Chicago', 'ECE', 18),
+(98, 'Zaid', 'Chopra', '2000-01-01', 'zaid.chopra98@example.com', 2023, 'Houston', 'MECH', 22),
+(99, 'Zane', 'Desai', '2000-01-01', 'zane.desai99@example.com', 2023, 'Phoenix', 'CIVIL', 20),
+(100, 'Zoya', 'Joshi', '2000-01-01', 'zoya.joshi100@example.com', 2023, 'New York', 'CSE', 18);
+INSERT INTO Enrollment (Student_ID, Class_ID, Grade) VALUES
+(1, 102, 'S'),
+(2, 103, 'A'),
+(3, 104, 'S'),
+(4, 101, 'B'),
+(5, 102, 'C'),
+(6, 103, 'C'),
+(7, 104, 'C'),
+(8, 101, 'D'),
+(9, 102, 'S'),
+(10, 103, 'D'),
+(11, 104, 'D'),
+(12, 101, 'C'),
+(13, 102, 'C'),
+(14, 103, 'F'),
+(15, 104, 'C'),
+(16, 101, 'F'),
+(17, 102, 'D'),
+(18, 103, 'S'),
+(19, 104, 'C'),
+(20, 101, 'D'),
+(21, 102, 'F'),
+(22, 103, 'A'),
+(23, 104, 'A'),
+(24, 101, 'A'),
+(25, 102, 'F'),
+(26, 103, 'B'),
+(27, 104, 'B'),
+(28, 101, 'C'),
+(29, 102, 'F'),
+(30, 103, 'S'),
+(31, 104, 'A'),
+(32, 101, 'S'),
+(33, 102, 'F'),
+(34, 103, 'D'),
+(35, 104, 'D'),
+(36, 101, 'B'),
+(37, 102, 'D'),
+(38, 103, 'D'),
+(39, 104, 'S'),
+(40, 101, 'F'),
+(41, 102, 'B'),
+(42, 103, 'D'),
+(43, 104, 'D'),
+(44, 101, 'A'),
+(45, 102, 'F'),
+(46, 103, 'C'),
+(47, 104, 'D'),
+(48, 101, 'B'),
+(49, 102, 'B'),
+(50, 103, 'F'),
+(51, 104, 'S'),
+(52, 101, 'A'),
+(53, 102, 'A'),
+(54, 103, 'C'),
+(55, 104, 'D'),
+(56, 101, 'S'),
+(57, 102, 'A'),
+(58, 103, 'S'),
+(59, 104, 'D'),
+(60, 101, 'S'),
+(61, 102, 'F'),
+(62, 103, 'F'),
+(63, 104, 'S'),
+(64, 101, 'C'),
+(65, 102, 'D'),
+(66, 103, 'F'),
+(67, 104, 'C'),
+(68, 101, 'B'),
+(69, 102, 'F'),
+(70, 103, 'A'),
+(71, 104, 'B'),
+(72, 101, 'A'),
+(73, 102, 'D'),
+(74, 103, 'D'),
+(75, 104, 'S'),
+(76, 101, 'S'),
+(77, 102, 'A'),
+(78, 103, 'S'),
+(79, 104, 'B'),
+(80, 101, 'S'),
+(81, 102, 'F'),
+(82, 103, 'S'),
+(83, 104, 'S'),
+(84, 101, 'A'),
+(85, 102, 'F'),
+(86, 103, 'B'),
+(87, 104, 'B'),
+(88, 101, 'C'),
+(89, 102, 'A'),
+(90, 103, 'F'),
+(91, 104, 'D'),
+(92, 101, 'B'),
+(93, 102, 'D'),
+(94, 103, 'D'),
+(95, 104, 'B'),
+(96, 101, 'F'),
+(97, 102, 'A'),
+(98, 103, 'B'),
+(99, 104, 'A'),
+(100, 101, 'C');`,
+            aggregates: `SELECT Dept, COUNT(Student_ID) as Total_Students, AVG(Age) as Avg_Age FROM Student GROUP BY Dept;`,
+            union: `SELECT First_Name FROM Student WHERE Dept = 'CSE' UNION SELECT First_Name FROM Student WHERE Dept = 'ECE';`,
+            subquery: `SELECT First_Name, Age FROM Student WHERE Age = (SELECT MIN(Age) FROM Student);`,
+            joins: `SELECT S.First_Name, E.Grade FROM Student S INNER JOIN Enrollment E ON S.Student_ID = E.Student_ID;`,
+            create_view: `CREATE VIEW IF NOT EXISTS CSE_STUDENTS AS SELECT First_Name, Age FROM Student WHERE Dept = 'CSE';`,
+            select_view: `SELECT * FROM CSE_STUDENTS;`,
+            week6_procedure: `/* Week 6: Procedure with Exception Handling (Graceful Error Catching) */
+/* Execution Note: Copy this to your MySQL/MariaDB Terminal */
+
+DELIMITER $$
+CREATE PROCEDURE insert_student_safe(IN p_id INT, IN p_name VARCHAR(50), IN p_dept VARCHAR(10), IN p_age INT)
+BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SELECT 'Error: Duplicate ID or SQL Error' AS Message;
+    END;
+    INSERT INTO STUDENT (Sid, Sname, Dept, Age) VALUES (p_id, p_name, p_dept, p_age);
+    SELECT 'Record Inserted Successfully' AS Message;
+END$$
+DELIMITER ;
+
+-- Run these to demonstrate:
+-- CALL insert_student_safe(4, 'David', 'CSE', 22);
+-- CALL insert_student_safe(1, 'Alice', 'ECE', 20); -- This will trigger the safe error message`,
+            week6_function: `/* Week 6: Function (Deterministic Calculation) */
+/* Execution Note: Copy this to your MySQL/MariaDB Terminal */
+
+DELIMITER $$
+CREATE FUNCTION calculate_bonus(sal INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    RETURN sal * 0.10;
+END$$
+DELIMITER ;
+
+-- Run this to demonstrate:
+-- SELECT emp_name, salary, calculate_bonus(salary) AS bonus FROM EMPLOYEE;`,
+            week6_cursor: `/* Week 6: Cursor (Row-by-Row Processing) */
+/* Execution Note: Copy this to your MySQL/MariaDB Terminal */
+
+DELIMITER $$
+CREATE PROCEDURE show_employee_names()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_name VARCHAR(50);
+    DECLARE emp_cursor CURSOR FOR SELECT emp_name FROM EMPLOYEE;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    
+    OPEN emp_cursor;
+    read_loop: LOOP
+        FETCH emp_cursor INTO v_name;
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+        SELECT v_name AS Employee_Name;
+    END LOOP;
+    CLOSE emp_cursor;
+END$$
+DELIMITER ;
+
+-- Run this to demonstrate:
+-- CALL show_employee_names();`,
+            week6_trigger: `/* Week 6: Trigger (Automated Business Logic) */
+/* Execution Note: Copy this to your MySQL/MariaDB Terminal */
+
+DELIMITER $$
+CREATE TRIGGER enforce_minimum_salary
+BEFORE UPDATE ON EMPLOYEE
+FOR EACH ROW
+BEGIN
+    IF NEW.salary < 10000 THEN
+        SET NEW.salary = 10000;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Run these to demonstrate:
+-- UPDATE EMPLOYEE SET salary = 5000 WHERE emp_id = 101;
+-- SELECT emp_name, salary FROM EMPLOYEE WHERE emp_id = 101;`
+        };
+
+        const select = document.getElementById('topic-select');
+        const textarea = document.getElementById('sql-query');
+        const executeBtn = document.getElementById('execute-btn');
+        const output = document.getElementById('output');
+
+        select.addEventListener('change', (e) => {
+            const key = e.target.value;
+            if (queries[key]) {
+                textarea.value = queries[key];
+            } else {
+                textarea.value = '';
+            }
+        });
+
+        executeBtn.addEventListener('click', async () => {
+            const sql = textarea.value.trim();
+            if (!sql) return;
+
+            // Check if this is a MySQL-only script
+            if (sql.includes('DELIMITER $$')) {
+                output.innerHTML = `<span style="color: #ffbd2e; font-weight: bold;">WARN: MySQL/PL-SQL Syntax Detected.</span><br>
+<span style="color: #888;">This code contains stored procedures/triggers which are not supported in the local execution environment (SQLite).</span><br><br>
+<span style="color: var(--success-color);">Action: Code is ready on clipboard. Switch to your MySQL terminal and paste it.</span><br><span class="cursor"></span>`;
+                return;
+            }
+
+            output.innerHTML = '<span style="color: yellow">Executing...</span><span class="cursor"></span>';
+            
+            try {
+                const response = await fetch('/db-review/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'sql=' + encodeURIComponent(sql)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'error') {
+                    output.innerHTML = `<div class="error">Error: ${result.message}</div><span class="cursor"></span>`;
+                } else if (result.data) {
+                    renderTable(result.data);
+                } else {
+                    output.innerHTML = `<span class="success-msg">${result.message}</span><br><span class="cursor"></span>`;
+                }
+            } catch (err) {
+                output.innerHTML = `<div class="error">Network Error: ${err.message}</div><span class="cursor"></span>`;
+            }
+        });
+
+        function renderTable(data) {
+            if (!data || data.length === 0) {
+                output.innerHTML = '<span style="color: yellow">Query executed successfully. 0 rows affected.</span><br><span class="cursor"></span>';
+                return;
+            }
+
+            const columns = Object.keys(data[0]);
+            const colWidths = {};
+            
+            // Calculate max width for each column
+            columns.forEach(col => {
+                let max = col.length;
+                data.forEach(row => {
+                    const len = String(row[col] === null ? 'NULL' : row[col]).length;
+                    if (len > max) max = len;
+                });
+                colWidths[col] = max + 2; // Add padding
+            });
+
+            // Build Separator
+            let separator = '+';
+            columns.forEach(col => separator += '-'.repeat(colWidths[col]) + '+');
+
+            // Build Header
+            let header = '|';
+            columns.forEach(col => {
+                header += ' ' + col.padEnd(colWidths[col]-1, ' ') + '|';
+            });
+
+            let table = separator + '\n' + header + '\n' + separator + '\n';
+
+            // Build Rows
+            data.forEach(row => {
+                let r = '|';
+                columns.forEach(col => {
+                    const val = String(row[col] === null ? 'NULL' : row[col]);
+                    r += ' ' + val.padEnd(colWidths[col]-1, ' ') + '|';
+                });
+                table += r + '\n';
+            });
+            table += separator;
+
+            output.innerHTML = `<pre style="color: var(--success-color); font-family: 'Fira Code', monospace; font-size: 0.9rem;">${table}</pre><br><span class="cursor"></span>`;
+        }
+    </script>
+</body>
+</html>

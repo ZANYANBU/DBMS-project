@@ -18,6 +18,21 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ url_for('db_review') }}" target="_blank" class="sidebar-link">
+                    📊 Live Demo (Review)
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('terminal') }}" target="_blank" class="sidebar-link">
+                    💻 Live Demo (Terminal)
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_sql_console') }}" class="sidebar-link">
+                    🛢️ SQL Console
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ url_for('admin_staff') }}" class="sidebar-link">
                     👨‍🏫 Staff
                 </a>
@@ -87,7 +102,7 @@
                     <tbody>
                         {% for enrollment in recent_enrollments %}
                         <tr>
-                            <td>{{ enrollment.Date_Enrolled }}</td>
+                            <td>{{ enrollment.Enrollment_Date }}</td>
                             <td>{{ enrollment.Student_Name }}</td>
                             <td>{{ enrollment.Course_Title }}</td>
                             <td>{{ enrollment.Section }}</td>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Terminal</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            padding: 1rem;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        #terminal-output {
+            flex-grow: 1;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+        }
+        .command-line {
+            display: flex;
+            border-top: 1px solid #333;
+            padding-top: 0.5rem;
+        }
+        .prompt {
+            color: #73c991;
+            margin-right: 0.5rem;
+        }
+        #command-input {
+            background: transparent;
+            border: none;
+            color: #d4d4d4;
+            font-family: inherit;
+            font-size: 1rem;
+            flex-grow: 1;
+            outline: none;
+        }
+        .output-line { margin-bottom: 0.5rem; }
+        .command-echo { color: #ce9178; font-weight: bold; }
+        .error-output { color: #f48771; }
+        .success-output { color: #d4d4d4; }
+    </style>
+</head>
+<body>
+    <div id="terminal-output">
+        <div class="output-line">Welcome to the Live Demo Terminal.</div>
+        <div class="output-line">Type commands to execute on the server. Type 'restart' to restart the Flask server.</div>
+        <div class="output-line">----------------------------------------------------------------------------------</div>
+    </div>
+    <div class="command-line">
+        <span class="prompt">User@DBMS-Lab:~$</span>
+        <input type="text" id="command-input" autocomplete="off" autofocus>
+    </div>
+
+    <script>
+        const input = document.getElementById('command-input');
+        const output = document.getElementById('terminal-output');
+
+        input.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                const command = input.value.trim();
+                if (!command) return;
+
+                // Echo command
+                appendOutput(`User@DBMS-Lab:~$ ${command}`, 'command-echo');
+                input.value = '';
+
+                if (command.toLowerCase() === 'clear') {
+                    output.innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/terminal/run', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'command=' + encodeURIComponent(command)
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        appendOutput(result.output, 'success-output');
+                    } else {
+                        appendOutput(result.output || result.message, 'error-output');
+                    }
+                    
+                    // Auto-scroll to bottom
+                    output.scrollTop = output.scrollHeight;
+
+                } catch (err) {
+                    appendOutput(`Error: ${err.message}`, 'error-output');
+                }
+            }
+        });
+
+        function appendOutput(text, className) {
+            const div = document.createElement('div');
+            div.className = 'output-line ' + className;
+            div.textContent = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+    </script>
+</body>
+</html>

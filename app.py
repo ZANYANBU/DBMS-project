@@ -4,6 +4,9 @@ Complete web application with multi-level authentication and CRUD operations
 """
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import sqlite3
+import os
+import sys
+import subprocess
 from datetime import datetime, date
 from functools import wraps
 import hashlib
@@ -41,6 +44,36 @@ def execute_db(query, args=()):
     last_id = cur.lastrowid
     conn.close()
     return last_id
+
+def seed_additional_courses():
+    """Seed additional demo courses if they do not already exist."""
+    additional_courses = [
+        ('CS102', 'Programming Fundamentals', 4, 1),
+        ('CS202', 'Database Systems', 4, 1),
+        ('CS303', 'Operating Systems', 4, 1),
+        ('CS305', 'Computer Networks', 4, 1),
+        ('MATH102', 'Discrete Mathematics', 3, 2),
+        ('MATH201', 'Linear Algebra', 3, 2),
+        ('MATH202', 'Probability and Statistics', 3, 2),
+        ('ADM101', 'Academic Writing', 2, 3),
+        ('ADM201', 'Communication Skills', 2, 3),
+        ('EC101', 'Intro to Electronics', 4, 2),
+        ('ME101', 'Thermodynamics', 4, 2),
+        ('CV101', 'Structural Engineering Basics', 4, 2)
+    ]
+
+    conn = get_db()
+    cur = conn.cursor()
+    for code, title, credits, dept_id in additional_courses:
+        cur.execute(
+            '''
+            INSERT OR IGNORE INTO Course (Code, Title, Credits, Dept_ID)
+            VALUES (?, ?, ?, ?)
+            ''',
+            (code, title, credits, dept_id)
+        )
+    conn.commit()
+    conn.close()
 
 # =========================================================================================
 # AUTHENTICATION & AUTHORIZATION
@@ -199,13 +232,13 @@ def admin_dashboard():
     
     # Recent enrollments
     recent_enrollments = query_db('''
-        SELECT e.Date_Enrolled, s.First_Name || ' ' || s.Last_Name as Student_Name,
+        SELECT e.Enrollment_Date, s.First_Name || ' ' || s.Last_Name as Student_Name,
                c.Title as Course_Title, cl.Section, cl.Semester
         FROM Enrollment e
         JOIN Student s ON e.Student_ID = s.Student_ID
         JOIN Class cl ON e.Class_ID = cl.Class_ID
         JOIN Course c ON cl.Course_ID = c.Course_ID
-        ORDER BY e.Date_Enrolled DESC
+        ORDER BY e.Enrollment_Date DESC
         LIMIT 10
     ''')
     
@@ -443,7 +476,7 @@ def admin_enrollments():
         JOIN Student s ON e.Student_ID = s.Student_ID
         JOIN Class cl ON e.Class_ID = cl.Class_ID
         JOIN Course c ON cl.Course_ID = c.Course_ID
-        ORDER BY e.Date_Enrolled DESC
+        ORDER BY e.Enrollment_Date DESC
     ''')
     return render_template('admin/enrollments.html', enrollments=enrollments)
 
@@ -455,7 +488,7 @@ def admin_enrollment_add():
     if request.method == 'POST':
         try:
             execute_db('''
-                INSERT INTO Enrollment (Student_ID, Class_ID, Date_Enrolled, Status)
+                INSERT INTO Enrollment (Student_ID, Class_ID, Enrollment_Date, Status)
                 VALUES (?, ?, ?, 'Enrolled')
             ''', (
                 request.form['student_id'],
@@ -475,6 +508,61 @@ def admin_enrollment_add():
         ORDER BY cl.Semester DESC, c.Code
     ''')
     return render_template('admin/enrollment_form.html', students=students, classes=classes)
+
+
+@app.route('/admin/sql-console')
+@login_required
+@role_required('Admin')
+def admin_sql_console():
+    """Admin SQL console page (MySQL-style demo on SQLite backend)."""
+    table_rows = query_db("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+    tables = [row['name'] for row in table_rows]
+    return render_template('admin/sql_console.html', tables=tables)
+
+
+@app.route('/admin/sql-console/execute', methods=['POST'])
+@login_required
+@role_required('Admin')
+def admin_sql_console_execute():
+    """Execute SQL from admin console against the live database."""
+    sql = request.form.get('sql', '').strip()
+
+    if not sql:
+        return jsonify({'status': 'error', 'message': 'SQL command is required.'})
+
+    normalized = sql.lstrip().upper()
+    is_read_query = normalized.startswith('SELECT') or normalized.startswith('WITH') or normalized.startswith('PRAGMA')
+
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        if is_read_query:
+            cur.execute(sql)
+            rows = cur.fetchall()
+            columns = [desc[0] for desc in cur.description] if cur.description else []
+            data = [dict(row) for row in rows]
+            conn.close()
+            return jsonify({
+                'status': 'success',
+                'type': 'result_set',
+                'columns': columns,
+                'rows': data,
+                'row_count': len(data)
+            })
+
+        cur.execute(sql)
+        conn.commit()
+        affected = cur.rowcount if cur.rowcount != -1 else 0
+        conn.close()
+        return jsonify({
+            'status': 'success',
+            'type': 'mutation',
+            'message': 'Command executed successfully.',
+            'rows_affected': affected
+        })
+    except Exception as e:
+        conn.close()
+        return jsonify({'status': 'error', 'message': str(e)})
 
 # =========================================================================================
 # STAFF ROUTES
@@ -709,7 +797,7 @@ def student_dashboard():
     classes = query_db('''
         SELECT cl.*, c.Code, c.Title, 
                s.First_Name || ' ' || s.Last_Name as Teacher_Name,
-               e.Status, e.Date_Enrolled
+               e.Status, e.Enrollment_Date
         FROM Enrollment e
         JOIN Class cl ON e.Class_ID = cl.Class_ID
         JOIN Course c ON cl.Course_ID = c.Course_ID
@@ -819,10 +907,123 @@ def internal_error(e):
     return render_template('error.html', error='Internal server error', code=500), 500
 
 # =========================================================================================
+# DB REVIEW INTERFACE (Week 4-6)
+# =========================================================================================
+
+@app.route('/db-review')
+def db_review():
+    """Render the simplified DB review interface"""
+    return render_template('db_review.html')
+
+@app.route('/db-review/execute', methods=['POST'])
+def db_review_execute():
+    """Execute raw SQL from the review interface"""
+    sql = request.form.get('sql', '').strip()
+    
+    if not sql:
+        return jsonify({'status': 'error', 'message': 'No SQL query provided'})
+    
+    conn = get_db()
+    try:
+        # Schema setup logic for Review/Demo
+        if '-- RUN_SCHEMA_SETUP' in sql:
+            try:
+                conn.execute("ALTER TABLE Student ADD COLUMN Dept TEXT")
+            except sqlite3.OperationalError:
+                pass # Column exists
+            try:
+                conn.execute("ALTER TABLE Student ADD COLUMN Age INTEGER")
+            except sqlite3.OperationalError:
+                pass # Column exists
+            try:
+                conn.execute("ALTER TABLE Enrollment ADD COLUMN Grade TEXT")
+            except sqlite3.OperationalError:
+                pass # Column exists
+            conn.commit()
+
+        # Naive check for SELECT to return data
+        check_sql = sql.upper().lstrip()
+        is_select = check_sql.startswith('SELECT') or check_sql.startswith('WITH') or check_sql.startswith('PRAGMA')
+        
+        if is_select:
+            # Single statement execution for SELECT
+            cur = conn.execute(sql)
+            rows = cur.fetchall()
+            # Convert sqlite3.Row objects to list of dicts
+            data = [dict(row) for row in rows]
+            conn.close()
+            return jsonify({'status': 'success', 'data': data})
+        else:
+            # For INSERT, UPDATE, DELETE, CREATE, DROP, etc., use executescript to allow multiple statements
+            conn.executescript(sql)
+            conn.close()
+            return jsonify({'status': 'success', 'message': 'Query executed successfully. (No rows returned)'})
+            
+    except Exception as e:
+        # Catch database errors and display raw message
+        if conn:
+            conn.close()
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
+@app.route('/terminal')
+def terminal():
+    """Simple command-line interface for demos"""
+    return render_template('terminal.html')
+
+@app.route('/terminal/run', methods=['POST'])
+def terminal_run():
+    """Execute shell commands or restart server"""
+    import sys
+    import subprocess
+    import time
+    
+    command = request.form.get('command', '').strip()
+    
+    if not command:
+        return jsonify({'status': 'error', 'message': 'Command cannot be empty'})
+    
+    # Handle restart
+    if command.lower() == 'restart' or command.lower() == 'reload':
+        print("\n\n--- RESTARTING FLASK SERVER ---\n\n")
+        # In typical Flask run environments, os.execv works to reload the current executable
+        try:
+            # We must schedule the restart to happen after the response is sent, or the client hangs
+            # But Flask is single-threaded by default, so we can't easilybackground it.
+            # Instead, we just execute and hope the browser catches the connection reset.
+            # Alternatively, if running with debug=True (reloader), touching this file triggers a reload.
+            # Let's try touching this file first as it's safer for the reloader.
+            with open(__file__, 'a'):
+                os.utime(__file__, None)
+            return jsonify({'status': 'success', 'output': 'Server touched. Reloading...'})
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': f'Failed to restart: {str(e)}'})
+
+    try:
+        # Run command with timeout and capture output
+        # Shell=True allows things like 'dir', 'cd ..', etc (but context is lost between commands)
+        proc = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=5)
+        
+        output = proc.stdout
+        if proc.stderr:
+            output += "\nError:\n" + proc.stderr
+            
+        return jsonify({'status': 'success', 'output': output})
+        
+    except subprocess.TimeoutExpired:
+        return jsonify({'status': 'error', 'message': 'Command timed out (limit: 5s)'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
+# =========================================================================================
 # MAIN
 # =========================================================================================
 
 if __name__ == '__main__':
+    # Seed additional courses for richer demo data
+    seed_additional_courses()
+
     # Initialize user accounts
     print("Initializing user accounts...")
     init_user_accounts()

@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}MySQL Demo SQL Console{% endblock %}
+
+{% block content %}
+<div class="layout">
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">📊 Dashboard</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_students') }}" class="sidebar-link">👨‍🎓 Students</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_staff') }}" class="sidebar-link">👨‍🏫 Staff</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_courses') }}" class="sidebar-link">📚 Courses</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_classes') }}" class="sidebar-link">🏫 Classes</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_enrollments') }}" class="sidebar-link">📝 Enrollments</a></li>
+            <li class="sidebar-item"><a href="{{ url_for('admin_sql_console') }}" class="sidebar-link active">🛢️ SQL Console</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">MySQL Demo SQL Console</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Live Database Command Runner</div>
+            <p style="margin-bottom: 1rem; color: #64748b;">
+                This console executes SQL directly on your live database backend.
+                Use with care because INSERT/UPDATE/DELETE/DDL commands will modify real data.
+            </p>
+
+            <div class="form-group">
+                <label for="sql-input" class="form-label">SQL Command</label>
+                <textarea id="sql-input" class="form-control" rows="8" style="font-family: Consolas, monospace;"
+                          placeholder="SELECT Code, Title, Credits FROM Course ORDER BY Code;"></textarea>
+            </div>
+
+            <div class="flex gap-2 mt-2">
+                <button id="run-sql" class="btn btn-primary">Run SQL</button>
+                <button id="sample-select" class="btn btn-secondary">Load Sample SELECT</button>
+                <button id="sample-insert" class="btn btn-secondary">Load Sample INSERT</button>
+            </div>
+
+            <div class="mt-3">
+                <strong>Available Tables:</strong>
+                <div class="mt-1">
+                    {% for table in tables %}
+                        <span class="badge badge-secondary" style="margin: 0.2rem;">{{ table }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Results</div>
+            <div id="result-meta" style="color: #64748b; margin-bottom: 1rem;">Run a command to see output.</div>
+            <div class="table-container" id="result-table-wrap" style="display: none;">
+                <table class="table" id="result-table">
+                    <thead id="result-head"></thead>
+                    <tbody id="result-body"></tbody>
+                </table>
+            </div>
+            <pre id="result-text" style="display:none; background:#0f172a; color:#e2e8f0; padding:1rem; border-radius:0.5rem; overflow:auto;"></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const sqlInput = document.getElementById('sql-input');
+    const runBtn = document.getElementById('run-sql');
+    const sampleSelectBtn = document.getElementById('sample-select');
+    const sampleInsertBtn = document.getElementById('sample-insert');
+    const resultMeta = document.getElementById('result-meta');
+    const resultTableWrap = document.getElementById('result-table-wrap');
+    const resultHead = document.getElementById('result-head');
+    const resultBody = document.getElementById('result-body');
+    const resultText = document.getElementById('result-text');
+
+    function showText(message, isError) {
+        resultTableWrap.style.display = 'none';
+        resultText.style.display = 'block';
+        resultText.textContent = message;
+        resultText.style.border = isError ? '1px solid #ef4444' : '1px solid #334155';
+    }
+
+    function showTable(columns, rows) {
+        resultText.style.display = 'none';
+        resultTableWrap.style.display = 'block';
+
+        resultHead.innerHTML = '';
+        resultBody.innerHTML = '';
+
+        const trHead = document.createElement('tr');
+        columns.forEach((col) => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            trHead.appendChild(th);
+        });
+        resultHead.appendChild(trHead);
+
+        rows.forEach((row) => {
+            const tr = document.createElement('tr');
+            columns.forEach((col) => {
+                const td = document.createElement('td');
+                const val = row[col];
+                td.textContent = val === null ? 'NULL' : String(val);
+                tr.appendChild(td);
+            });
+            resultBody.appendChild(tr);
+        });
+    }
+
+    async function runSql() {
+        const sql = sqlInput.value.trim();
+        if (!sql) {
+            resultMeta.textContent = 'Please enter an SQL command.';
+            showText('No SQL command provided.', true);
+            return;
+        }
+
+        runBtn.disabled = true;
+        runBtn.textContent = 'Running...';
+
+        try {
+            const resp = await fetch('{{ url_for("admin_sql_console_execute") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'sql=' + encodeURIComponent(sql)
+            });
+
+            const data = await resp.json();
+
+            if (data.status === 'error') {
+                resultMeta.textContent = 'Execution failed.';
+                showText(data.message || 'Unknown error', true);
+                return;
+            }
+
+            if (data.type === 'result_set') {
+                resultMeta.textContent = `Query executed successfully. ${data.row_count} row(s) returned.`;
+                showTable(data.columns || [], data.rows || []);
+            } else {
+                resultMeta.textContent = `Command executed. Rows affected: ${data.rows_affected}`;
+                showText(data.message || 'Command executed successfully.', false);
+            }
+        } catch (err) {
+            resultMeta.textContent = 'Execution failed.';
+            showText(String(err), true);
+        } finally {
+            runBtn.disabled = false;
+            runBtn.textContent = 'Run SQL';
+        }
+    }
+
+    sampleSelectBtn.addEventListener('click', function () {
+        sqlInput.value = 'SELECT Code, Title, Credits, Dept_ID FROM Course ORDER BY Code;';
+    });
+
+    sampleInsertBtn.addEventListener('click', function () {
+        sqlInput.value = "INSERT INTO Course (Code, Title, Credits, Dept_ID) VALUES ('CS450', 'Machine Learning Fundamentals', 4, 1);";
+    });
+
+    runBtn.addEventListener('click', runSql);
+})();
+</script>
+{% endblock %}
