@@ -101,19 +101,6 @@ Current screenshot slots used by this README:
 
 ![SQL Query Demo](docs/screenshots/sql-query-demo.png)
 
-## How To Update Screenshots
-
-Use this workflow so screenshot links never need to change.
-
-1. Take a new screenshot from the running app.
-2. Rename it to one of these exact filenames:
-   1. login-page.png
-   2. student-list.png
-   3. live-terminal-demo.png
-   4. sql-query-demo.png
-3. Place or replace the file in docs/screenshots/.
-4. Commit and push changes.
-
 Recommended update commands:
 
 ```bash
