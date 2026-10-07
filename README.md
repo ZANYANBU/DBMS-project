@@ -1,5 +1,7 @@
 # School Management System (DBMS Project)
 
+[![CI](https://github.com/ZANYANBU/DBMS-project/actions/workflows/ci.yml/badge.svg)](https://github.com/ZANYANBU/DBMS-project/actions/workflows/ci.yml)
+
 A robust school database and web application for managing students, staff, courses, classes, attendance, and grades.
 
 ## Overview
@@ -16,7 +18,7 @@ Main functional areas:
 ## Getting Started
 
 ### Prerequisites
-1. Python 3.x
+1. Python 3.x (`pip install -r requirements.txt`)
 2. SQLite3
 
 ### Setup
@@ -44,6 +46,16 @@ python app.py
 ```text
 http://127.0.0.1:5000
 ```
+
+## Tests
+
+```bash
+pip install -r requirements.txt pytest
+pytest
+```
+
+The tests check the schema, foreign keys, login and role protection. They run on a
+throwaway copy of the database, and on every push.
 
 ## Useful Commands
 
